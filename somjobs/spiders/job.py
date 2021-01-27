@@ -19,5 +19,6 @@ class JobSpider(scrapy.Spider):
             'job_type': extract_with_css('.jbtype ::text'),
             'category': extract_with_css('.top-style li a ::text'),
             'posted_date': response.xpath('//*[@id="mainContent"]/div[3]/ul/li[2]/text()').get(),
-            'expires': response.xpath('//*[@id="mainContent"]/div[3]/ul/li[3]/text()').get()
+            'expires': response.xpath('//*[@id="mainContent"]/div[3]/ul/li[3]/text()').get(),
+            'link': response.url
         }
