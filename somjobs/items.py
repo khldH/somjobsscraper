@@ -8,3 +8,4 @@ class SomJobsItem(scrapy.Item):
     posted_date = scrapy.Field()
     expires = scrapy.Field()
     link = scrapy.Field()
+    short_url = scrapy.Field()
