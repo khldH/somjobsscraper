@@ -7,5 +7,6 @@ class SomJobsItem(scrapy.Item):
     category = scrapy.Field()
     posted_date = scrapy.Field()
     expires = scrapy.Field()
+    job_location = scrapy.Field()
     link = scrapy.Field()
     short_url = scrapy.Field()
