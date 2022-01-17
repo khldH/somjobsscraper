@@ -65,6 +65,14 @@ class SomJobsPipeline(object):
         self.table = None
 
     def process_item(self, item, spider):
+        if item['category'] is None:
+            item['category'] = ''
+        if item['title'] is None:
+            item['title'] = ''
+        if item['posted_date'] is None:
+            item['posted_date'] = ''
+        if item['organization'] is None:
+            item['organization'] = ''
         item['id'] = str(uuid.uuid4())
         item['country'] = 'Somalia'
         item['city'] = ''

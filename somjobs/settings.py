@@ -9,6 +9,9 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 import os
+# from dotenv import load_dotenv
+#
+# load_dotenv()
 
 BOT_NAME = 'somjobs'
 
@@ -93,9 +96,6 @@ ITEM_PIPELINES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-# region_name = os.getenv('region_name')
-# aws_access_key_id = os.getenv('aws_access_key_id')
-# aws_secret_access_key = os.getenv('aws_secret_access_key')
 
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
