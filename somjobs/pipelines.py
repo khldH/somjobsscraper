@@ -1,17 +1,73 @@
-import urllib
-import requests
-from datetime import datetime
+import os
+import boto3
+import uuid
+from .api_jobs.get_jobs_from_api import get_refined_job_list
 
 
 class SomJobsPipeline(object):
-    key = '58f9f7655ba7c89e1f0c4ded45d3511802dc8'
+    _rw_jobs = get_refined_job_list()
+
+    def __init__(self, aws_access_key_id, aws_secret_access_key, region_name,
+                 table_name):
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
+        self.region_name = region_name
+        self.table_name = table_name
+        self.table = None
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        aws_access_key_id = crawler.settings['AWS_ACCESS_KEY_ID']
+        aws_secret_access_key = crawler.settings['AWS_SECRET_ACCESS_KEY']
+        region_name = crawler.settings['DYNAMODB_PIPELINE_REGION_NAME']
+        table_name = crawler.settings['DYNAMODB_PIPELINE_TABLE_NAME']
+        return cls(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=region_name,
+            table_name=table_name,
+        )
+
+    def open_spider(self, spider):
+        db = boto3.resource(
+            'dynamodb',
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
+            region_name=self.region_name,
+        )
+        if self.table_name in [table.name for table in db.tables.all()]:
+            table = db.Table(self.table_name)
+            table.delete()
+            table.wait_until_not_exists()
+        self.table = db.create_table(
+            TableName=self.table_name,
+            KeySchema=[
+                {
+                    'AttributeName': 'id',
+                    'KeyType': 'HASH'
+                },
+            ],
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'id',
+                    'AttributeType': 'S'
+                },
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 1,
+                'WriteCapacityUnits': 1
+            }
+        )
+
+    def close_spider(self, spider):
+        for item in self._rw_jobs:
+            self.table.put_item(Item=item)
+        self.table = None
 
     def process_item(self, item, spider):
-        # url = urllib.parse.quote(item['link'])
-        # req = requests.get('http://cutt.ly/api/api.php?key={}&short={}'.format(self.key, url))
-        # req = req.json()
-        # print(req)
-        item['posted_date'] = item['posted_date'].split(":")[1].strip()
-        item['expires'] = item['expires'].split(":")[1].strip()
-        # item['short_url'] = req['url']['shortLink']
+        item['id'] = str(uuid.uuid4())
+        item['country'] = 'Somalia'
+        item['city'] = ''
+        item['source'] = 'Somali jobs'
+        self.table.put_item(Item=item)
         return item
