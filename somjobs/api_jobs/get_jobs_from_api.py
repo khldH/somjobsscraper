@@ -28,7 +28,7 @@ def get_refined_job_list():
             category=item["fields"]["career_categories"][0]["name"],
             posted_date=item["fields"]["date"]["created"],
             url=item["fields"]["url"],
-            location=city + 'Somalia',
+            location=city + " " + 'Somalia',
             organization=item["fields"]["source"][0]["name"],
             source="reliefweb",
         )
