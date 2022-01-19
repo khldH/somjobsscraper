@@ -74,7 +74,7 @@ class SomJobsPipeline(object):
             item['posted_date'] = ''
         if item['organization'] is None:
             item['organization'] = ''
-        item['title'] = item['url'].split("jobs/")[1].strip('/').replace('-', ' ')
+        item['title'] = item['url'].split("jobs/")[1].strip('/').replace('-', ' ').title()
         item['id'] = str(uuid.uuid4())
         item['location'] = " ".join(item['title'].split()[-2:])
         item['source'] = 'Somali jobs'
