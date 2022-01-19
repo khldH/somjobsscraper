@@ -29,6 +29,7 @@ class SomJobsPipeline(object):
         )
 
     def open_spider(self, spider):
+        pass
         db = boto3.resource(
             'dynamodb',
             aws_access_key_id=self.aws_access_key_id,
@@ -73,9 +74,9 @@ class SomJobsPipeline(object):
             item['posted_date'] = ''
         if item['organization'] is None:
             item['organization'] = ''
+        item['title'] = item['url'].split("jobs/")[1].strip('/').replace('-', ' ')
         item['id'] = str(uuid.uuid4())
-        item['country'] = 'Somalia'
-        item['city'] = ''
+        item['location'] = " ".join(item['title'].split()[-2:])
         item['source'] = 'Somali jobs'
         self.table.put_item(Item=item)
         return item

@@ -10,7 +10,6 @@ class SomJobsItem(scrapy.Item):
     # expires = scrapy.Field()
     url = scrapy.Field()
     # short_url = scrapy.Field()
-    country = scrapy.Field()
-    city = scrapy.Field()
+    location = scrapy.Field()
     organization = scrapy.Field()
     source = scrapy.Field()
