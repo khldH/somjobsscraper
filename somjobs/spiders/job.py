@@ -19,7 +19,8 @@ class JobSpider(scrapy.Spider):
                 'title': quote.css('h3.job_listing-title ::text').get(),
                 'url': quote.css('h3 a ::attr(href)').get(),
                 'category': quote.css('div.details a ::text').get(),
-                'posted_date': quote.css('div.details span.spaced-right ::text').get()
+                'posted_date': quote.css('div.details span.spaced-right ::text').get(),
+                'type': quote.css('div.mixed ::text').get()
             }
 
 

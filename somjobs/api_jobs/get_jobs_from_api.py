@@ -26,6 +26,7 @@ def get_refined_job_list():
             id=str(uuid.uuid4()),
             title=item["fields"]["title"],
             category=item["fields"]["career_categories"][0]["name"],
+            type=item['fields']['type'][0]['name'],
             posted_date=item["fields"]["date"]["created"],
             url=item["fields"]["url"],
             location=city + " " + 'Somalia',
