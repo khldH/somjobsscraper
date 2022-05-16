@@ -21,7 +21,7 @@ NEWSPIDER_MODULE = "somjobs.spiders"
 
 
 # splash
-SPLASH_URL = "http://localhost:8050"
+SPLASH_URL = "http://127.0.0.1:8050"
 
 DOWNLOADER_MIDDLEWARES = {
     "scrapy_splash.SplashCookiesMiddleware": 723,
@@ -127,7 +127,7 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-AWS_ACCESS_KEY_ID = ""
-AWS_SECRET_ACCESS_KEY = ""
+AWS_ACCESS_KEY_ID = "AKIA3IUMGIYVHNIYFSEA"
+AWS_SECRET_ACCESS_KEY = "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"
 DYNAMODB_PIPELINE_REGION_NAME = "eu-west-2"
 DYNAMODB_PIPELINE_TABLE_NAME = "jobs"

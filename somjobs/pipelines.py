@@ -37,42 +37,42 @@ class SomJobsPipeline(object):
             # local_db=local_db
         )
 
-    def open_spider(self, spider):
-        db = boto3.resource(
-            'dynamodb',
-            aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key,
-            region_name=self.region_name, )
-        # db = boto3.resource('dynamodb', endpoint_url="http://localhost:8001")
-
-        if self.table_name in [table.name for table in db.tables.all()]:
-            table = db.Table(self.table_name)
-            table.delete()
-            table.wait_until_not_exists()
-        self.table = db.create_table(
-            TableName=self.table_name,
-            KeySchema=[
-                {
-                    'AttributeName': 'id',
-                    'KeyType': 'HASH'
-                },
-            ],
-            AttributeDefinitions=[
-                {
-                    'AttributeName': 'id',
-                    'AttributeType': 'S'
-                },
-            ],
-            ProvisionedThroughput={
-                'ReadCapacityUnits': 1,
-                'WriteCapacityUnits': 1
-            }
-        )
-
-    def close_spider(self, spider):
-        for item in self._rw_jobs:
-            self.table.put_item(Item=item)
-        self.table = None
+    # def open_spider(self, spider):
+    #     db = boto3.resource(
+    #         'dynamodb',
+    #         aws_access_key_id=self.aws_access_key_id,
+    #         aws_secret_access_key=self.aws_secret_access_key,
+    #         region_name=self.region_name, )
+    #     # db = boto3.resource('dynamodb', endpoint_url="http://localhost:8001")
+    #
+    #     if self.table_name in [table.name for table in db.tables.all()]:
+    #         table = db.Table(self.table_name)
+    #         table.delete()
+    #         table.wait_until_not_exists()
+    #     self.table = db.create_table(
+    #         TableName=self.table_name,
+    #         KeySchema=[
+    #             {
+    #                 'AttributeName': 'id',
+    #                 'KeyType': 'HASH'
+    #             },
+    #         ],
+    #         AttributeDefinitions=[
+    #             {
+    #                 'AttributeName': 'id',
+    #                 'AttributeType': 'S'
+    #             },
+    #         ],
+    #         ProvisionedThroughput={
+    #             'ReadCapacityUnits': 1,
+    #             'WriteCapacityUnits': 1
+    #         }
+    #     )
+    #
+    # def close_spider(self, spider):
+    #     for item in self._rw_jobs:
+    #         self.table.put_item(Item=item)
+    #     self.table = None
 
     def process_item(self, item, spider):
         item["url"] = "https://somalijobs.com" + item["url"].split("=")[
@@ -95,5 +95,5 @@ class SomJobsPipeline(object):
         # item['category'] = item['category'].strip()
         # item['type'] = item['type'].strip()
         item["source"] = "Somali jobs"
-        self.table.put_item(Item=item)
+        # self.table.put_item(Item=item)
         return item
