@@ -15,7 +15,11 @@ jobs:
 
     steps:
       - name: Checkout repository content
-        uses: actions/checkout@v2 # Checkout the repository content to github runner.
+        uses: actions/checkout@v2 # Checkout the repository content to github runner
+        
+      - name: Run Splash
+        run:
+         docker run --rm -d -p 8050:8050 --network host scrapinghub/splash
 
       - name: Setup Python Version
         uses: actions/setup-python@v2
@@ -29,4 +33,6 @@ jobs:
       
       
       - name: Execute Python script # Run the app.py
-        run: python main.py
+        run: |
+          SPLASH_URL=http://127.0.0.1:8050
+          python main.py
