@@ -25,8 +25,10 @@ class SomJobsPipeline(object):
 
     @classmethod
     def from_crawler(cls, crawler):
-        aws_access_key_id = crawler.settings['AWS_ACCESS_KEY_ID']
-        aws_secret_access_key = crawler.settings['AWS_SECRET_ACCESS_KEY']
+        aws_access_key_id = os.getenv('AWS_SECRET_ACCESS_KEY')
+            # crawler.settings['AWS_ACCESS_KEY_ID']
+        aws_secret_access_key =os.getenv('AWS_SECRET_ACCESS_KEY')
+            # crawler.settings['AWS_SECRET_ACCESS_KEY']
         region_name = "eu-west-2"
         table_name = "jobs"
         # local_db = boto3.resource('dynamodb', endpoint_url="http://localhost:8001")
