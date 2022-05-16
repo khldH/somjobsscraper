@@ -1,6 +1,8 @@
 from scrapy.crawler import CrawlerProcess
-from somjobs.spiders.job import JobSpider
 from scrapy.utils.project import get_project_settings
+
+from somjobs.spiders.job import JobSpider
+
 settings = get_project_settings()
 
 

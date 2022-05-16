@@ -9,17 +9,41 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 import os
+
 # from dotenv import load_dotenv
 #
 # load_dotenv()
 
-BOT_NAME = 'somjobs'
+BOT_NAME = "somjobs"
 
-SPIDER_MODULES = ['somjobs.spiders']
-NEWSPIDER_MODULE = 'somjobs.spiders'
+SPIDER_MODULES = ["somjobs.spiders"]
+NEWSPIDER_MODULE = "somjobs.spiders"
+
+
+# splash
+SPLASH_URL = "http://localhost:8050"
+
+DOWNLOADER_MIDDLEWARES = {
+    "scrapy_splash.SplashCookiesMiddleware": 723,
+    "scrapy_splash.SplashMiddleware": 725,
+    "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": 810,
+    "scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware": None,
+    "scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware": 350,
+}
+DOWNLOAD_DELAY = 2
+
+SPIDER_MIDDLEWARES = {
+    "scrapy_splash.SplashDeduplicateArgsMiddleware": 100,
+}
+
+DUPEFILTER_CLASS = "scrapy_splash.SplashAwareDupeFilter"
+
+HTTPCACHE_STORAGE = "scrapy_splash.SplashAwareFSCacheStorage"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = 'somjobs (+http://www.yourdomain.com)'
+# USER_AGENT = 'somjobs (+https://somalijobs.com/jobs)'
+
+# USER_AGENT: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:39.0) Gecko/20100101 Firefox/39.0'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -52,6 +76,12 @@ ROBOTSTXT_OBEY = True
 # SPIDER_MIDDLEWARES = {
 #    'somjobs.middlewares.MyCustomSpiderMiddleware': 543,
 # }
+# HTTP_RETRY_CODES = [404, 303, 304]
+# RETRY_TIMES = 20
+
+# DOWNLOADER_MIDDLEWARES = {
+#     'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware': None,
+# }
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
@@ -72,7 +102,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'somjobs.pipelines.SomJobsPipeline': 300,
+    "somjobs.pipelines.SomJobsPipeline": 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -97,9 +127,7 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-AWS_ACCESS_KEY_ID = ''
-AWS_SECRET_ACCESS_KEY = ''
-DYNAMODB_PIPELINE_REGION_NAME = 'eu-west-2'
-DYNAMODB_PIPELINE_TABLE_NAME = 'jobs'
-
-
+AWS_ACCESS_KEY_ID = ""
+AWS_SECRET_ACCESS_KEY = ""
+DYNAMODB_PIPELINE_REGION_NAME = "eu-west-2"
+DYNAMODB_PIPELINE_TABLE_NAME = "jobs"

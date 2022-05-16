@@ -1,49 +1,55 @@
-import scrapy
 import logging
-import uuid
 
-from somjobs.items import SomJobsItem
+import scrapy
+from scrapy_splash import SplashRequest
 
 logger = logging.getLogger(__name__)
 
+# handle infinite scroll
+script = """
+    function main(splash)
+        local num_scrolls = 10
+        local scroll_delay = 1.0
+    
+        local scroll_to = splash:jsfunc("window.scrollTo")
+        local get_body_height = splash:jsfunc(
+            "function() {return document.body.scrollHeight;}"
+        )
+        assert(splash:go(splash.args.url))
+        splash:wait(splash.args.wait)
+    
+        for _ = 1, num_scrolls do
+            scroll_to(0, get_body_height())
+            splash:wait(scroll_delay)
+        end        
+        return splash:html()
+    end
+"""
+
 
 class JobSpider(scrapy.Spider):
-    name = 'job'
+    name = "job"
 
-    start_urls = ['https://somalijobs.net/#open']
+    def start_requests(self):
+        url = "https://somalijobs.com/jobs"
+        yield SplashRequest(
+            url=url,
+            endpoint="execute",
+            callback=self.parse,
+            args={"wait": 2, "lua_source": script},
+        )
 
     def parse(self, response):
-        for quote in response.css('div.job_listing-about'):
+        jobs = response.css("div.job-middle-grid.m-jobs-lising1-container")
+        for job in jobs:
             yield {
-                'organization': quote.css('div.job_listing-company ::text').get(),
-                'title': quote.css('h3.job_listing-title ::text').get(),
-                'url': quote.css('h3 a ::attr(href)').get(),
-                'category': quote.css('div.details a ::text').get(),
-                'posted_date': quote.css('div.details span.spaced-right ::text').get(),
-                'type': quote.css('div.mixed ::text').get()
+                "title": job.css("h4::text").get(),
+                "posted_date": job.css("div.jmg-post-date span::text").get(),
+                "organization": job.css(
+                    "h4.jmg-company-title.job-listing-1-company a::text"
+                ).get(),
+                "location": job.css("span.skl-3.job-listing-1-items").get(),
+                "category": job.css("span.skl-2.job-listing-1-items").get(),
+                "type": job.css("span.skl-6.job-listing-1-items").get(),
+                "url": job.css("::attr(onclick)").get(),
             }
-
-
-    # def parse(self, response):
-    #     job_links = response.css('h3 a ::attr(href)')
-    #     yield from response.follow_all(job_links, self.parse_job)
-    #
-    # def parse_job(self, response):
-    #     item = SomJobsItem()
-    #
-    #     def extract_with_css(query):
-    #         return response.css(query).get(default='').strip()
-    #
-    #     item['id'] = str(uuid.uuid4())
-    #     item['title'] = extract_with_css('h1.title::text')
-    #     # item['job_type'] = extract_with_css('.jbtype ::text')
-    #     item['category'] = extract_with_css('.top-style li a ::text')
-    #     item['posted_date'] = response.xpath('//*[@id="mainContent"]/div[3]/ul/li[2]/text()').get()
-    #     # item['expires'] = response.xpath('//*[@id="mainContent"]/div[3]/ul/li[3]/text()').get()
-    #     item['url'] = response.url
-    #     item['country'] = 'Somalia'
-    #     item['city'] = 'Somalia'
-    #     # item['organization'] = self.org  # response.xpath('//*[@id="mainContent"]/ol/li[1]/div[3]/div[1]/div').get()
-    #     item['source'] = 'Somali jobs'
-    #
-    #     yield item
