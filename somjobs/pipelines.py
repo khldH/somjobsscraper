@@ -45,7 +45,7 @@ class SomJobsPipeline(object):
             aws_secret_access_key=self.aws_secret_access_key,
             region_name=self.region_name, )
         # db = boto3.resource('dynamodb', endpoint_url="http://localhost:8001")
-
+        print("here", self.region_name, self.aws_access_key_id,self.aws_secret_access_key)
         if self.table_name in [table.name for table in db.tables.all()]:
             table = db.Table(self.table_name)
             table.delete()
