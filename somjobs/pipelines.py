@@ -25,10 +25,8 @@ class SomJobsPipeline(object):
 
     @classmethod
     def from_crawler(cls, crawler):
-        aws_access_key_id = os.getenv('AWS_SECRET_ACCESS_KEY')
-            # crawler.settings['AWS_ACCESS_KEY_ID']
-        aws_secret_access_key =os.getenv('AWS_SECRET_ACCESS_KEY')
-            # crawler.settings['AWS_SECRET_ACCESS_KEY']
+        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')  # crawler.settings['aws_access_key_id']
+        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')  # crawler.settings['aws_secret_access_key']
         region_name = "eu-west-2"
         table_name = "jobs"
         # local_db = boto3.resource('dynamodb', endpoint_url="http://localhost:8001")
@@ -41,13 +39,14 @@ class SomJobsPipeline(object):
         )
 
     def open_spider(self, spider):
+        print("checking access id ", self.aws_access_key_id)
         db = boto3.resource(
             'dynamodb',
             aws_access_key_id=self.aws_access_key_id,
             aws_secret_access_key=self.aws_secret_access_key,
             region_name=self.region_name, )
         # db = boto3.resource('dynamodb', endpoint_url="http://localhost:8001")
-        print("here", self.region_name, self.aws_access_key_id,self.aws_secret_access_key)
+        print("here", self.region_name, self.aws_access_key_id, self.aws_secret_access_key)
         if self.table_name in [table.name for table in db.tables.all()]:
             table = db.Table(self.table_name)
             table.delete()
