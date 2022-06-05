@@ -40,16 +40,16 @@ class JobSpider(scrapy.Spider):
         )
 
     def parse(self, response):
-        jobs = response.css("div.job-middle-grid.m-jobs-lising1-container")
+        jobs = response.css("a.job-middle-grid.m-jobs-lising1-container")
         for job in jobs:
             yield {
                 "title": job.css("h4::text").get(),
                 "posted_date": job.css("div.jmg-post-date span::text").get(),
                 "organization": job.css(
-                    "h4.jmg-company-title.job-listing-1-company a::text"
+                    "h4.jmg-company-title.job-listing-1-company::text"
                 ).get(),
                 "location": job.css("span.skl-3.job-listing-1-items").get(),
                 "category": job.css("span.skl-2.job-listing-1-items").get(),
                 "type": job.css("span.skl-6.job-listing-1-items").get(),
-                "url": job.css("::attr(onclick)").get(),
+                "url": job.css("::attr(href)").get(),
             }

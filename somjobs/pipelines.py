@@ -12,8 +12,8 @@ class SomJobsPipeline(object):
     def __init__(self,
                  aws_access_key_id,
                  aws_secret_access_key,
-                 region_name="eu-west-2",
                  # local_db,
+                 region_name="eu-west-2",
                  table_name="jobs"
                  ):
         self.aws_access_key_id = aws_access_key_id
@@ -29,7 +29,7 @@ class SomJobsPipeline(object):
         aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')  # crawler.settings['aws_secret_access_key']
         region_name = "eu-west-2"
         table_name = "jobs"
-        # local_db = boto3.resource('dynamodb', endpoint_url="http://localhost:8001")
+        # local_db = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
         return cls(
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
@@ -39,14 +39,12 @@ class SomJobsPipeline(object):
         )
 
     def open_spider(self, spider):
-        print("checking access id ", self.aws_access_key_id)
         db = boto3.resource(
             'dynamodb',
             aws_access_key_id=self.aws_access_key_id,
             aws_secret_access_key=self.aws_secret_access_key,
             region_name=self.region_name, )
-        # db = boto3.resource('dynamodb', endpoint_url="http://localhost:8001")
-        print("here", self.region_name, self.aws_access_key_id, self.aws_secret_access_key)
+        # db = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
         if self.table_name in [table.name for table in db.tables.all()]:
             table = db.Table(self.table_name)
             table.delete()
@@ -77,9 +75,7 @@ class SomJobsPipeline(object):
         self.table = None
 
     def process_item(self, item, spider):
-        item["url"] = "https://somalijobs.com" + item["url"].split("=")[
-            1
-        ].strip().replace("'", "")
+        item["url"] = "https://somalijobs.com" + item["url"]#.split("=")[1].strip().replace("'", "")
         item["category"] = item["category"].split("\n")[2].strip()
         item["type"] = item["type"].split("\n")[2].strip()
         item["location"] = item["location"].split("\n")[2].strip()
