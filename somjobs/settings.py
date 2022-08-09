@@ -46,7 +46,7 @@ HTTPCACHE_STORAGE = "scrapy_splash.SplashAwareFSCacheStorage"
 # USER_AGENT: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:39.0) Gecko/20100101 Firefox/39.0'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -103,6 +103,8 @@ ROBOTSTXT_OBEY = True
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     "somjobs.pipelines.SomJobsPipeline": 300,
+    "somjobs.pipelines.UNJobsPipeline": 300,
+    "somjobs.pipelines.ImpactpoolJobsPipeline": 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

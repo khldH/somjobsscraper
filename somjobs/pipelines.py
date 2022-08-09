@@ -1,81 +1,11 @@
-import os
 import uuid
-
-import boto3
-
-from .api_jobs.get_jobs_from_api import get_refined_job_list
+from datetime import datetime, timedelta
+from scrapy.exceptions import DropItem
 
 
 class SomJobsPipeline(object):
-    _rw_jobs = get_refined_job_list()
-
-    def __init__(self,
-                 aws_access_key_id,
-                 aws_secret_access_key,
-                 # local_db,
-                 region_name="eu-west-2",
-                 table_name="jobs"
-                 ):
-        self.aws_access_key_id = aws_access_key_id
-        self.aws_secret_access_key = aws_secret_access_key
-        self.region_name = region_name
-        self.table_name = table_name
-        # self.local_db = local_db
-        self.table = None
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')  # crawler.settings['aws_access_key_id']
-        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')  # crawler.settings['aws_secret_access_key']
-        region_name = "eu-west-2"
-        table_name = "jobs"
-        # local_db = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
-        return cls(
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            region_name=region_name,
-            table_name=table_name,
-            # local_db=local_db
-        )
-
-    def open_spider(self, spider):
-        db = boto3.resource(
-            'dynamodb',
-            aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key,
-            region_name=self.region_name, )
-        # db = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
-        if self.table_name in [table.name for table in db.tables.all()]:
-            table = db.Table(self.table_name)
-            table.delete()
-            table.wait_until_not_exists()
-        self.table = db.create_table(
-            TableName=self.table_name,
-            KeySchema=[
-                {
-                    'AttributeName': 'id',
-                    'KeyType': 'HASH'
-                },
-            ],
-            AttributeDefinitions=[
-                {
-                    'AttributeName': 'id',
-                    'AttributeType': 'S'
-                },
-            ],
-            ProvisionedThroughput={
-                'ReadCapacityUnits': 1,
-                'WriteCapacityUnits': 1
-            }
-        )
-
-    def close_spider(self, spider):
-        for item in self._rw_jobs:
-            self.table.put_item(Item=item)
-        self.table = None
-
     def process_item(self, item, spider):
-        item["url"] = "https://somalijobs.com" + item["url"]#.split("=")[1].strip().replace("'", "")
+        item["url"] = "https://somalijobs.com" + item["url"]
         item["category"] = item["category"].split("\n")[2].strip()
         item["type"] = item["type"].split("\n")[2].strip()
         item["location"] = item["location"].split("\n")[2].strip()
@@ -89,9 +19,54 @@ class SomJobsPipeline(object):
         #     item['organization'] = ''
         # item['title'] = item['url'].split("jobs/")[1].strip('/').replace('-', ' ').title()
         item["id"] = str(uuid.uuid4())
-        # item['location'] = " ".join(item['title'].split()[-2:])
-        # item['category'] = item['category'].strip()
-        # item['type'] = item['type'].strip()
-        item["source"] = "Somali jobs"
-        self.table.put_item(Item=item)
+
+        item["source"] = "Somalijobs"
+
+        return item
+
+
+class UNJobsPipeline(object):
+    def process_item(self, item, spider):
+        if item["title"] is None:
+            raise DropItem("Invalid job")
+
+        else:
+
+            if "about" in item["posted_date"]:
+                item["posted_date"] = datetime.utcnow().isoformat()
+            elif item["posted_date"] == "a day ago":
+                item["posted_date"] = (
+                    datetime.utcnow() - timedelta(days=1)
+                ).isoformat()
+            elif item["posted_date"] is not None:
+                item["posted_date"] = (
+                    datetime.utcnow()
+                    - timedelta(int(item["posted_date"].split(" ")[0]))
+                ).isoformat()
+            else:
+                item["posted_date"] = item["posted_date"]
+            item["location"] = item["title"].split(",")[1].strip()
+            item["id"] = str(uuid.uuid4())
+            item["source"] = "UNjobs"
+            return item
+
+
+class ImpactpoolJobsPipeline(object):
+    def process_item(self, item, spider):
+        item["url"] = "https://impactpool.org" + item["url"]
+        item["organization"] = (
+            item["organization"].split("</h3>")[1].split("\n")[1].strip()
+        )
+        item["location"] = (
+            item["location"]
+            .split('<i class="icon fa fa-map-marker"></i>')[1]
+            .split("\n")[1]
+            .strip()
+        )
+        if item["posted_date"] == "New":
+            item["posted_date"] = (datetime.utcnow() - timedelta(days=1)).isoformat()
+        else:
+            item["posted_date"] = (datetime.utcnow() - timedelta(days=10)).isoformat()
+        item["id"] = str(uuid.uuid4())
+        item["source"] = "Impactpool"
         return item

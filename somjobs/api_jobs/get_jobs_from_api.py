@@ -19,20 +19,23 @@ def get_jobs():
 def get_refined_job_list():
     jobs = get_jobs()
     som_jobs = []
-    for item in jobs["data"]:
-        city = ""
-        if "city" in item["fields"].keys():
-            city = item["fields"]["city"][0]["name"]
-        job = dict(
-            id=str(uuid.uuid4()),
-            title=item["fields"]["title"],
-            category=item["fields"]["career_categories"][0]["name"],
-            type=item["fields"]["type"][0]["name"],
-            posted_date=item["fields"]["date"]["created"],
-            url=item["fields"]["url"],
-            location=city + " " + "Somalia",
-            organization=item["fields"]["source"][0]["name"],
-            source="reliefweb",
-        )
-        som_jobs.append(job)
-    return som_jobs
+    try:
+        for item in jobs["data"]:
+            city = ""
+            if "city" in item["fields"].keys():
+                city = item["fields"]["city"][0]["name"]
+            job = dict(
+                id=str(uuid.uuid4()),
+                title=item["fields"]["title"],
+                category=item["fields"]["career_categories"][0]["name"],
+                type=item["fields"]["type"][0]["name"],
+                posted_date=item["fields"]["date"]["created"],
+                url=item["fields"]["url"],
+                location=city + " " + "Somalia",
+                organization=item["fields"]["source"][0]["name"],
+                source="reliefweb",
+            )
+            som_jobs.append(job)
+        return som_jobs
+    except Exception as e:
+        print(e)
