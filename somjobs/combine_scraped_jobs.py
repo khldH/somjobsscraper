@@ -13,7 +13,7 @@ def append_all_scraped_jobs(files_dir):
         all_files = [path for path in Path(files_dir).rglob("*.json")]
         for file in all_files:
             # print(file)
-            with open(file) as f:
+            with open(file,encoding="utf8") as f:
                 data = json.load(f)
                 jobs.extend(data)
         return jobs

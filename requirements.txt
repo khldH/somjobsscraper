@@ -1,6 +1,8 @@
 Scrapy==2.5.1
 setuptools==57.0.0
 requests==2.27.1
-boto3
+boto3==1.22.11
 scrapy-splash==0.8.0
 
+
+python-dateutil==2.8.2

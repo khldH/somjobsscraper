@@ -143,3 +143,88 @@ class ImpactpoolJobsSpider(scrapy.Spider):
                 "type": "",
                 "url": job.css("a.apply-link::attr(href)").get(),
             }
+
+
+class WeWorkRemotelySpider(scrapy.Spider):
+    name = "weworkremotely"
+    start_urls = ["https://weworkremotely.com/categories/remote-customer-support-jobs#job-listings",
+                  "https://weworkremotely.com/categories/remote-sales-and-marketing-jobs#job-listings",
+                  "https://weworkremotely.com/categories/remote-management-and-finance-jobs#job-listings",
+                  "https://weworkremotely.com/categories/remote-design-jobs#job-listings"]
+    custom_settings = {
+        "FEEDS": {
+            "scraped_jobs/weworkremotely.json": {
+                "format": "json",
+                "encoding": "utf8",
+                "overwrite": True,
+            }
+        },
+        "ITEM_PIPELINES": {"somjobs.pipelines.WeWorkRemotelyPipeline": 300},
+        "LOG_LEVEL": "INFO",
+    }
+
+    def start_requests(self):
+        # url = "https://weworkremotely.com/remote-jobs/search?term=&button=&categories%5B%5D=7&categories%5B%5D=9" \
+        #       "&categories%5B%5D=3&region%5B%5D=0"
+        # url = "https://weworkremotely.com/remote-jobs/search?term=&button=&region%5B%5D=0"
+        for url in self.start_urls:
+            yield SplashRequest(
+                url=url,
+                endpoint="execute",
+                callback=self.parse,
+                args={"wait": 2, "lua_source": script},
+            )
+
+    def parse(self, response):
+        jobs = response.css("article ul li a")
+        for job in jobs:
+            yield {
+                "title": job.css('span.title::text').get(),
+                "posted_date": job.css('span.date time::text').get(),
+                "organization": job.css("span.company::text").get(),
+                "location": job.css("span.region::text").get(),
+                "category": response.url.split("categories/remote-")[1].split("-jobs")[0],
+                "type": "",
+                "url": job.css("::attr(href)").get(),
+            }
+
+
+
+# class RemoteOKSpider(scrapy.Spider):
+#     name = "remoteok"
+#     start_urls = ["https://remoteok.com/remote-customer-support-jobs?location=Worldwide"]
+#     custom_settings = {
+#         "FEEDS": {
+#             "scraped_jobs/remoteok.json": {
+#                 "format": "json",
+#                 "encoding": "utf8",
+#                 "overwrite": True,
+#             }
+#         },
+#         "ITEM_PIPELINES": {"somjobs.pipelines.RemoteOKPipeline": 300},
+#         "LOG_LEVEL": "INFO",
+#     }
+#
+#     def start_requests(self):
+#
+#         for url in self.start_urls:
+#             yield SplashRequest(
+#                 url=url,
+#                 endpoint="execute",
+#                 callback=self.parse,
+#                 args={"wait": 2, "lua_source": script},
+#             )
+#
+#     def parse(self, response):
+#         jobs = response.css("article ul li a")
+#         for job in jobs:
+#             yield {
+#                 "title": job.css('span.title::text').get(),
+#                 "posted_date": job.css('span.date time::text').get(),
+#                 "organization": job.css("span.company::text").get(),
+#                 "location": job.css("span.region::text").get(),
+#                 "category": response.url.split("categories/remote-")[1].split("-jobs")[0],
+#                 "type": "",
+#                 "url": job.css("::attr(href)").get(),
+#             }
+

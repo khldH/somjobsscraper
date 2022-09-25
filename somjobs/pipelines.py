@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timedelta
 from scrapy.exceptions import DropItem
+from dateutil import parser
 
 
 class SomJobsPipeline(object):
@@ -36,15 +37,15 @@ class UNJobsPipeline(object):
                 item["posted_date"] = datetime.utcnow().isoformat()
             elif item["posted_date"] == "a day ago":
                 item["posted_date"] = (
-                    datetime.utcnow() - timedelta(days=1)
+                        datetime.utcnow() - timedelta(days=1)
                 ).isoformat()
             elif item["posted_date"] is not None:
                 item["posted_date"] = (
-                    datetime.utcnow()
-                    - timedelta(int(item["posted_date"].split(" ")[0]))
+                        datetime.utcnow()
+                        - timedelta(int(item["posted_date"].split(" ")[0]))
                 ).isoformat()
             else:
-                item["posted_date"] = item["posted_date"]
+                item["posted_date"] = parser.parse(item["posted_date"]).date().isoformat()
             item["location"] = item["title"].split(",")[1].strip()
             item["id"] = str(uuid.uuid4())
             item["source"] = "UNjobs"
@@ -59,9 +60,9 @@ class ImpactpoolJobsPipeline(object):
         )
         item["location"] = (
             item["location"]
-            .split('<i class="icon fa fa-map-marker"></i>')[1]
-            .split("\n")[1]
-            .strip()
+                .split('<i class="icon fa fa-map-marker"></i>')[1]
+                .split("\n")[1]
+                .strip()
         )
         if item["posted_date"] == "New":
             item["posted_date"] = (datetime.utcnow() - timedelta(days=1)).isoformat()
@@ -70,3 +71,27 @@ class ImpactpoolJobsPipeline(object):
         item["id"] = str(uuid.uuid4())
         item["source"] = "Impactpool"
         return item
+
+
+class WeWorkRemotelyPipeline(object):
+    def process_item(self, item, spider):
+        if item["title"] is None or item['location'] != 'Anywhere in the World':
+            raise DropItem("Invalid job")
+        else:
+            item["url"] = "https://weworkremotely.com" + item["url"]
+            # item["organization"] = (
+            #     item["organization"].split("</h3>")[1].split("\n")[1].strip()
+            # )
+            # item["location"] = (
+            #     item["location"]
+            #     .split('<i class="icon fa fa-map-marker"></i>')[1]
+            #     .split("\n")[1]
+            #     .strip()
+            # )
+            if item["posted_date"] is None:
+                item["posted_date"] = (datetime.utcnow() - timedelta(days=1)).date().strftime("%b %d")
+            else:
+                item["posted_date"] = parser.parse(item["posted_date"]).date().strftime("%b %d")
+            item["id"] = str(uuid.uuid4())
+            item["source"] = "weworkremotely"
+            return item

@@ -105,6 +105,8 @@ ITEM_PIPELINES = {
     "somjobs.pipelines.SomJobsPipeline": 300,
     "somjobs.pipelines.UNJobsPipeline": 300,
     "somjobs.pipelines.ImpactpoolJobsPipeline": 300,
+    "somjobs.pipelines.WeWorkRemotelyPipeline": 300,
+
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
