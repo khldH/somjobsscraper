@@ -1,4 +1,4 @@
-Scrapy==2.5.1
+Scrapy==2.6.3
 setuptools==57.0.0
 requests==2.27.1
 boto3==1.22.11
